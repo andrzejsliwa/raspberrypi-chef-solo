@@ -47,7 +47,7 @@ class Raspberry
           && cd #{tmp_provision} && git checkout origin/master}
     sudo_run %{sh -c "cd #{tmp_provision} && bundle install"}
     sudo_run %{sh -c "cd #{tmp_provision}/chef && bundle exec librarian-chef install"}
-    sudo_run %{chef-solo -c #{tmp_provision}/chef/solo.rb -o "role[#{@role}]"}    
+    sudo_run %{chef-solo -c #{tmp_provision}/chef/solo.rb -o "role[#{@chef_role}]"}    
   end
 
   def reboot
