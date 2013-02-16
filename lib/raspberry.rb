@@ -1,10 +1,10 @@
 class Raspberry
   def initialize(options)
-        @cap          = options.fetch(:capistrano)
-        @chef_version = options.fetch(:chef_version)
-        @pi           = options.fetch(:pi).to_s
-        @logger       = options.fetch(:logger)
-        @chef_role    = options.fetch(:chef_role)
+    @cap          = options.fetch(:capistrano)
+    @chef_version = options.fetch(:chef_version)
+    @pi           = options.fetch(:pi).to_s
+    @logger       = options.fetch(:logger)
+    @chef_role    = options.fetch(:chef_role)
   end
 
   def bootstrap
