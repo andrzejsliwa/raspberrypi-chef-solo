@@ -20,7 +20,6 @@ set :rasp_pi, Raspberry.new(
   chef_role: "pi"
 )
 
-
 namespace :pi do
 
   desc "bootsrap raspberry pi"
@@ -31,6 +30,6 @@ namespace :pi do
 
   desc "provision raspberry pi"
   task :provision do
-        rasp_pi.provision
+    rasp_pi.provision
   end
 end
