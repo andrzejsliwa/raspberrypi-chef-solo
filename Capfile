@@ -4,7 +4,7 @@ require 'raspberry'
 require 'capistrano-helpers'
 
 set :application, 'raspberrypi-chef-solo'
-set :repository,  'git@github.com:andrzejsliwa/raspberrypi-chef-solo.git'
+set :repository,  'git://github.com/andrzejsliwa/raspberrypi-chef-solo.git'
 set :branch,      'master'
 
 server '192.168.1.50', :raspberry
