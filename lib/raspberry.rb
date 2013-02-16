@@ -38,6 +38,18 @@ class Raspberry
   	@logger.info "Bootstraping Done."
   end	
 
+  def provision
+  	tmp_provision = '/tmp/provision'
+		run %{test -d "#{tmp_provision}" && (cd #{tmp_provision}
+			    && git checkout chef/Cheffile.lock 
+			    && git pull; git checkout origin/master) 
+          || git clone #{@cap.repository} #{tmp_provision} 
+          && cd #{tmp_provision} && git checkout origin/master}
+    sudo_run %{sh -c "cd #{tmp_provision} && bundle install"}
+    sudo_run %{sh -c "cd #{tmp_provision}/chef && bundle exec librarian-chef install"}
+    sudo_run %{chef-solo -c #{tmp_provision}/chef/solo.rb -o "role[#{instance_role}]"}    
+  end
+
   def reboot
   	@logger.info "Restarting Rasberry Pi: #{@pi}"
   	sudo_run 'sudo shutdown -r now'
