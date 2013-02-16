@@ -1,0 +1,4 @@
+.idea
+chef/cookbooks
+chef/tmp
+chef/cache
