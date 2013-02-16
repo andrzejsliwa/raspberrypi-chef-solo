@@ -9,7 +9,7 @@ set :branch,      'master'
 
 server '192.168.1.50', :raspberry
 
-set :chef_role, 'pi'
+
 set :user,      'pi'
 
 set :rasp_pi, Raspberry.new(
@@ -17,7 +17,7 @@ set :rasp_pi, Raspberry.new(
 	logger: logger, 
 	chef_version: '11.2.0',
 	pi: find_servers(roles: :raspberry)[0], 
-	chef_role: chef_role
+	chef_role: "pi"
 )
 
 
