@@ -21,14 +21,23 @@ set :rasp_pi, Raspberry.new(
 
 namespace :pi do
 
-  desc "bootsrap raspberry pi"
+  desc 'bootsrap raspberry pi'
   task :bootstrap do
     rasp_pi.bootstrap
     rasp_pi.reboot
   end
 
-  desc "provision raspberry pi"
+  desc 'provision raspberry pi'
   task :provision do
     rasp_pi.provision
+  end
+
+  desc 'connect to pi'
+  task :ssh do
+    exec "ssh #{user}@#{find_servers(roles: :raspberry)[0]}"
+  end
+
+  task :debug do
+    sudo "tail -f /tmp/ami_builder/chef/cache/chef-stacktrace.out"
   end
 end

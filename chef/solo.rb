@@ -1,4 +1,4 @@
-root = File.expand_path("/tmp/ami_builder/chef")
+root = File.expand_path("/tmp/provision/chef")
 
 file_cache_path "#{root}/cache"
 cookbook_path   "#{root}/cookbooks"
