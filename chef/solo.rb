@@ -1,4 +1,4 @@
-root = File.expand_path("/tmp/provision/chef")
+root = File.expand_path("/tmp/chef")
 
 file_cache_path "#{root}/cache"
 cookbook_path   "#{root}/cookbooks"

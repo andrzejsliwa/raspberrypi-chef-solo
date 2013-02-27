@@ -1,17 +1,20 @@
 class Raspberry
   def initialize(options)
     @cap          = options.fetch(:capistrano)
-    @chef_version = options.fetch(:chef_version)
     @pi           = options.fetch(:pi).to_s
-    @logger       = options.fetch(:logger)
+    @chef_version = options.fetch(:chef_version)
+    @chef_dir     = options.fetch(:chef_dir)
     @chef_role    = options.fetch(:chef_role)
+    @archive_name = 'chef.tar.gz'
+    @tmp_chef_dir = "/tmp/#{@chef_dir}"
   end
 
   def bootstrap
-    @logger.info "Bootstraping Rasberry Pi: #{@pi}"
+    logger.info 'bootstraping... '
     apt_upgrade
 
-    [ 'scratch',
+    pkgs_to_remove = [
+      'scratch',
       'debian-reference-en dillo idle3 python3-tk idle python-pygame python-tk',
       'lightdm gnome-themes-standard gnome-icon-theme raspberrypi-artwork',
       'gvfs-backends gvfs-fuse desktop-base lxpolkit netsurf-gtk zenity xdg-utils',
@@ -20,44 +23,52 @@ class Raspberry
       'libraspberrypi-dev libraspberrypi-doc',
       'dbus-x11 libx11-6 libx11-data libx11-xcb1 x11-common x11-utils',
       'lxde-icon-theme gconf-service gconf2-common'
-    ].each do |pkgs|
-      apt_remove(pkgs)
-    end
+    ].join(' ')
+    apt_remove(pkgs_to_remove)
 
-    [ 'build-essential git-core',
+    pkgs_to_install = [
+      'build-essential git-core',
       'ruby1.9.3 ruby1.9.1-dev libopenssl-ruby libxml2-dev libxslt-dev',
       'htop mc',
-    ].each do |pkgs|
-      apt_install(pkgs)
-    end
+    ].join(' ')
+    apt_install(pkgs_to_install)
 
     gem_install "chef --version=#{@chef_version}"
-    gem_install 'bundler'
     sudo_run %{sh -c "echo 'PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/var/lib/gems/1.8/bin\"' > /etc/environment"%}
 
     upload_key
-    @logger.info "Bootstraping Done."
+
+    logger.info 'bootstrap done.'
   end
 
   def provision
-    tmp_provision = '/tmp/provision'
-    run %{test -d "#{tmp_provision}"
-          && (cd #{tmp_provision} && git checkout chef/Cheffile.lock && git pull; git checkout origin/master)
-          || git clone #{@cap.repository} #{tmp_provision}
-          && cd #{tmp_provision} && git checkout origin/master}
-    sudo_run %{sh -c "cd #{tmp_provision} && bundle install"}
-    sudo_run %{sh -c "cd #{tmp_provision}/chef && bundle exec librarian-chef install"}
-    sudo_run %{chef-solo -c #{tmp_provision}/chef/solo.rb -o "role[#{@chef_role}]"}
+    logger.info 'provisioning...'
+
+    system "rm -f #{@archive_name} && tar czf #{@archive_name} #{@chef_dir}"
+    run "rm -rf #{@tmp_chef_dir}"
+
+    upload @archive_name, '/tmp'
+
+    run "cd /tmp && tar xzf #{@archive_name}"
+    sudo_run %{chef-solo -c #{@tmp_chef_dir}/solo.rb -o "role[#{@chef_role}]"}
+
+    logger.info 'provision done.'
   end
 
   def reboot
-    @logger.info "Restarting Rasberry Pi: #{@pi}"
+    logger.info 'rebooting #{@pi} ...'
+
     sudo_run 'sudo shutdown -r now'
-    wait_for_sshd(@pi) { print '.'}
-    @logger.info "Restarting Done."
+    wait_for_sshd(@pi) { print '.' }
+
+    logger.info 'reboot done.'
   end
 
   private
+
+    def logger
+      @cap.logger
+    end
 
     def sudo_run(cmd)
       run "sudo #{cmd}"
@@ -68,7 +79,7 @@ class Raspberry
     end
 
     def upload(source, target)
-      @cap.upload source, target
+      @cap.upload source, target, force: true, via: :scp
     end
 
     def gem_install(gems)
