@@ -3,6 +3,14 @@ SITE
   specs:
     apt (1.9.0)
 
+GIT
+  remote: git://github.com/obradovic/chef-openssh.git
+  ref: sshd-config
+  sha: 6858864ad72aab229d8f8fc2fd8a509712f5cc67
+  specs:
+    openssh (0.8.4)
+
 DEPENDENCIES
   apt (>= 0)
+  openssh (>= 0)
 
