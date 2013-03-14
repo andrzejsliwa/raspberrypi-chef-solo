@@ -38,6 +38,9 @@ class Raspberry
     sudo_run %{sh -c "echo 'PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/var/lib/gems/1.8/bin\"' > /etc/environment"%}
 
     upload_key
+    sudo_run 'curl -L https://raw.github.com/andrzejsliwa/vimfiles/master/utils/installer.sh | sh'
+    run 'curl -L https://raw.github.com/andrzejsliwa/vimfiles/master/utils/installer.sh | sh'
+
     logger.info 'bootstrap done.'
   end
 
