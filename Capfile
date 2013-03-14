@@ -22,11 +22,11 @@ set :rasp_pi, Raspberry.new(
 
 namespace :pi do
 
-  before 'provision', 'update_modules'
+  before 'pi:provision', 'pi:update_modules'
 
   desc 'updates modules from librarian'
-  desc :update_modules do
-    system 'cd chef; librarian-chef install; cd ..'
+  task :update_modules do
+    system 'cd chef; librarian-chef install; cd -'
   end
 
   desc 'bootsrap raspberry pi'

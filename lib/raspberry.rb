@@ -66,6 +66,7 @@ class Raspberry
 
   def install_noip
     logger.info 'installing noip'
+
     sudo_run '/etc/init.d/noip stop || true'
     run 'wget http://www.no-ip.com/client/linux/noip-duc-linux.tar.gz'
     run 'tar vzxf noip-duc-linux.tar.gz'
