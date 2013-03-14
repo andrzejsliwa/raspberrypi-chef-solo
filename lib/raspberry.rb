@@ -5,6 +5,7 @@ class Raspberry
     @chef_version = options.fetch(:chef_version)
     @chef_dir     = options.fetch(:chef_dir)
     @chef_role    = options.fetch(:chef_role)
+    @noip_account = options.fetch(:noip_account)
     @archive_name = 'chef.tar.gz'
     @tmp_chef_dir = "/tmp/#{@chef_dir}"
   end
@@ -37,7 +38,6 @@ class Raspberry
     sudo_run %{sh -c "echo 'PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/var/lib/gems/1.8/bin\"' > /etc/environment"%}
 
     upload_key
-
     logger.info 'bootstrap done.'
   end
 
@@ -45,7 +45,7 @@ class Raspberry
     logger.info 'provisioning...'
 
     system "rm -f #{@archive_name} && tar czf #{@archive_name} #{@chef_dir}"
-    run "rm -rf #{@tmp_chef_dir}"
+    sudo_run "rm -rf #{@tmp_chef_dir}"
 
     upload @archive_name, '/tmp'
 
@@ -62,6 +62,30 @@ class Raspberry
     wait_for_sshd(@pi) { print '.' }
 
     logger.info 'reboot done.'
+  end
+
+  def install_noip
+    logger.info 'installing noip'
+    sudo_run '/etc/init.d/noip stop || true'
+    run 'wget http://www.no-ip.com/client/linux/noip-duc-linux.tar.gz'
+    run 'tar vzxf noip-duc-linux.tar.gz'
+    run 'cd noip-*; sudo make'
+
+    noip_password = Capistrano::CLI.password_prompt("Type your noip password: ")
+
+    @cap.run 'cd noip-*; sudo make install' do |ch, stream, out|
+      ch.send_data "#{@noip_account}\n"  if out =~ /Please enter the login.*/
+      ch.send_data "#{noip_password}\r" if out =~ /Please enter the password.*/
+      ch.send_data "10\n\n"   if out =~ /Please enter an update interval.*/
+      ch.send_data "n\n"    if out =~ /Do you wish to run something at successful update\?\[N\] \(y\/N\)/
+    end
+    upload 'templates/noip', '/tmp/noip'
+    sudo_run 'mv /tmp/noip /etc/init.d/noip'
+    sudo_run 'chmod 755 /etc/init.d/noip'
+    sudo_run '/etc/init.d/noip start'
+    sudo_run 'sudo update-rc.d noip defaults'
+
+    logger.info 'installing noip done.'
   end
 
   private

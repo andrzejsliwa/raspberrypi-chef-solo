@@ -1,4 +1,4 @@
 site 'http://community.opscode.com/api/v1'
 
 cookbook 'apt'
-cookbook 'openssh', git: 'git://github.com/obradovic/chef-openssh.git', ref: 'sshd-config'
+cookbook 'openssh', path: "custom_cookbooks/openssh"

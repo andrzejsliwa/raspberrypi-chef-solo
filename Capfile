@@ -7,7 +7,7 @@ set :application, 'raspberrypi-chef-solo'
 set :repository,  'git://github.com/andrzejsliwa/raspberrypi-chef-solo.git'
 set :branch,      'master'
 
-server '192.168.1.50', :raspberry
+server 'pi.andrzejsliwa.com', :raspberry
 
 set :user,      'pi'
 
@@ -16,8 +16,8 @@ set :rasp_pi, Raspberry.new(
   chef_version: '11.2.0',
   chef_dir:     'chef',
   chef_role:    'pi',
+  noip_account: 'andrzej.sliwa@i-tool.eu',
   pi:           find_servers(roles: :raspberry)[0]
-
 )
 
 namespace :pi do
@@ -33,6 +33,12 @@ namespace :pi do
   task :bootstrap do
     rasp_pi.bootstrap
     rasp_pi.reboot
+    rasp_pi.install_noip
+  end
+
+  desc 'install noip for raspberry pi'
+  task :install_noip do
+    rasp_pi.install_noip
   end
 
   desc 'cleanup broken bootsrap'

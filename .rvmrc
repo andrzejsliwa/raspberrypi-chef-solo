@@ -1,1 +1,1 @@
-rvm 1.9.3-p0@raspberrypi --create
+rvm 1.9.3@raspberrypi --create
