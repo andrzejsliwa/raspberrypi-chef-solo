@@ -30,16 +30,20 @@ class Raspberry
     pkgs_to_install = [
       'build-essential git-core',
       'ruby1.9.3 ruby1.9.1-dev libopenssl-ruby libxml2-dev libxslt-dev',
-      'htop mc',
+      'htop mc tmux',
     ].join(' ')
     apt_install(pkgs_to_install)
 
     gem_install "chef --version=#{@chef_version}"
+    gem_install "tmuxinator"
+
     sudo_run %{sh -c "echo 'PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/var/lib/gems/1.8/bin\"' > /etc/environment"%}
 
     upload_key
     sudo_run 'curl -L https://raw.github.com/andrzejsliwa/vimfiles/master/utils/installer.sh | sh'
     run 'curl -L https://raw.github.com/andrzejsliwa/vimfiles/master/utils/installer.sh | sh'
+
+    install_noip
 
     logger.info 'bootstrap done.'
   end
@@ -59,7 +63,7 @@ class Raspberry
   end
 
   def reboot
-    logger.info 'rebooting #{@pi} ...'
+    logger.info "rebooting #{@pi} ..."
 
     sudo_run 'sudo shutdown -r now'
     wait_for_sshd(@pi) { print '.' }

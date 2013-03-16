@@ -33,7 +33,6 @@ namespace :pi do
   task :bootstrap do
     rasp_pi.bootstrap
     rasp_pi.reboot
-    rasp_pi.install_noip
   end
 
   desc 'install noip for raspberry pi'
